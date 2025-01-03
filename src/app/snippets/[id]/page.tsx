@@ -2,6 +2,7 @@ import { db } from "@/app/db";
 import { SnippetShowPageProps } from "@/app/snippets/interface";
 import SnippetNotFound from "./not-found";
 import Link from "next/link";
+import { deleteSnippet } from "@/actions/index";
 
 export default async function SnippetShowPage(props: SnippetShowPageProps) {
   //delay to see the loading page
@@ -17,6 +18,8 @@ export default async function SnippetShowPage(props: SnippetShowPageProps) {
     return <SnippetNotFound params={{ id }} />;
   }
 
+  const deleteSnippetAction = deleteSnippet.bind(null, snippet.id);
+
   return (
     <div>
       <div className="flex my-4 justify-between items-center">
@@ -28,7 +31,9 @@ export default async function SnippetShowPage(props: SnippetShowPageProps) {
           >
             Edit
           </Link>
-          <button className="p-2 border rounded">Delete</button>
+          <form action={deleteSnippetAction}>
+            <button className="p-2 border rounded">Delete</button>
+          </form>
         </div>
       </div>
 
