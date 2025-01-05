@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/app/db";
 
@@ -17,6 +18,8 @@ export async function deleteSnippet(id: number) {
     where: { id },
   });
 
+  // revalidate the root route so it shows the updated list of snippets
+  revalidatePath(`/`);
   redirect(`/`);
 }
 
@@ -24,32 +27,43 @@ export async function createSnippet(
   formState: { message: string },
   formData: FormData
 ) {
-  //check user's inputs and make sure they are valid
-  const title = formData.get("title");
-  const code = formData.get("code");
-  const language = formData.get("language") as string;
+  try {
+    //check user's inputs and make sure they are valid
+    const title = formData.get("title");
+    const code = formData.get("code");
+    const language = formData.get("language") as string;
 
-  //validating user's inputs
-  if (typeof title !== "string" || title.length < 3) {
+    //validating user's inputs
+    if (typeof title !== "string" || title.length < 3) {
+      return {
+        message: "Title must be a string and longer than 3 characters",
+      };
+    }
+    if (typeof code !== "string" || code.length < 5) {
+      return {
+        message: "Code must be a string and longer than 5 characters",
+      };
+    }
+
+    //create new record in the database
+    await db.snippet.create({
+      data: {
+        title,
+        code,
+        language,
+      },
+    });
+
+    // throw new Error("Failed to save to database");
+  } catch (error: unknown) {
+    //if there is an error, return the error message
     return {
-      message: "Title must be a string and longer than 3 characters",
+      message: error instanceof Error ? error.message : "An error occurred",
     };
   }
-  if (typeof code !== "string" || code.length < 5) {
-    return {
-      message: "Code must be a string and longer than 5 characters",
-    };
-  }
 
-  //create new record in the database
-  const snippet = await db.snippet.create({
-    data: {
-      title,
-      code,
-      language,
-    },
-  });
-
+  // revalidate the root route so it shows the updated list of snippets
+  revalidatePath("/");
   //redirect user back to the root route
   redirect("/");
 }
