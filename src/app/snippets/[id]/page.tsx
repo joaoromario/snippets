@@ -11,10 +11,10 @@ export default async function SnippetShowPage({
   //delay to see the loading page
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  // const { id } = await props.params;
+  const data = await params;
 
   const snippet = await db.snippet.findFirst({
-    where: { id: parseInt(params.id) },
+    where: { id: parseInt(data.id) },
   });
 
   if (!snippet) {
@@ -46,14 +46,4 @@ export default async function SnippetShowPage({
       </pre>
     </div>
   );
-}
-
-export async function generateStaticParams() {
-  const snippets = await db.snippet.findMany();
-
-  return snippets.map((snippet) => {
-    return {
-      id: snippet.id.toString(),
-    };
-  });
 }

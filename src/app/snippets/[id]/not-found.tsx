@@ -5,11 +5,11 @@ export default function SnippetNotFound({
 }: {
   params: { id: string };
 }) {
-  const { id } = params;
+  const idData = params;
   return (
     <div>
       <h1>Sorry, but we couldn&#39;t find that particular snippet.</h1>
-      <p>Id: {id}</p>
+      <p>Id: {`${idData}`}</p>
     </div>
   );
 }
