@@ -1,5 +1,5 @@
 export interface SnippetShowPageProps {
-  params: Promise<{
+  params: {
     id: string;
-  }>;
+  };
 }

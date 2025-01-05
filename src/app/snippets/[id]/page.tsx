@@ -1,21 +1,25 @@
 import { db } from "@/app/db";
 import { SnippetShowPageProps } from "@/app/snippets/interface";
 import SnippetNotFound from "./not-found";
+// import { notFound } from "next/navigation";
 import Link from "next/link";
 import { deleteSnippet } from "@/actions/index";
 
-export default async function SnippetShowPage(props: SnippetShowPageProps) {
+export default async function SnippetShowPage({
+  params,
+}: SnippetShowPageProps) {
   //delay to see the loading page
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const { id } = await props.params;
+  // const { id } = await props.params;
 
   const snippet = await db.snippet.findFirst({
-    where: { id: parseInt(id) },
+    where: { id: parseInt(params.id) },
   });
 
   if (!snippet) {
-    return <SnippetNotFound params={{ id }} />;
+    return <SnippetNotFound params={{ id: params.id }} />;
+    // return notFound();
   }
 
   const deleteSnippetAction = deleteSnippet.bind(null, snippet.id);
@@ -42,4 +46,14 @@ export default async function SnippetShowPage(props: SnippetShowPageProps) {
       </pre>
     </div>
   );
+}
+
+export async function generateStaticParams() {
+  const snippets = await db.snippet.findMany();
+
+  return snippets.map((snippet) => {
+    return {
+      id: snippet.id.toString(),
+    };
+  });
 }
